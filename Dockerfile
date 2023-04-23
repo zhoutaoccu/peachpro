@@ -3,7 +3,28 @@ MAINTAINER vh@thc.org
 
 ARG DEBIAN_FRONTEND=noninteractive
 
+ADD sources.list /etc/apt/
+
 RUN apt-get update
+
+RUN apt-get install -y git
+
+RUN git clone https://gitlab.com/gitlab-org/security-products/protocol-fuzzer-ce
+
+# Pin to a known version
+RUN cd protocol-fuzzer-ce && \
+    git checkout 5697f699dc43593d69c44b8521a50976dfff266e
+
+# Get specific mono packages
+WORKDIR /protocol-fuzzer-ce/paket/.paket
+ADD paket.bootstrapper.exe /protocol-fuzzer-ce/paket/.paket
+ADD paket.targets /protocol-fuzzer-ce/paket/.paket
+ADD paket.exe /protocol-fuzzer-ce/paket/.paket
+ADD Paket.Restore.targets /protocol-fuzzer-ce/paket/.paket
+#RUN wget https://github.com/fsprojects/Paket/releases/download/5.257.0/paket.bootstrapper.exe
+#RUN wget https://github.com/fsprojects/Paket/releases/download/5.257.0/paket.targets
+#RUN wget https://github.com/fsprojects/Paket/releases/download/5.257.0/paket.exe
+#RUN wget https://github.com/fsprojects/Paket/releases/download/5.257.0/Paket.Restore.targets
 
 RUN apt-get install -y \
     coreutils apt-utils wget curl openssl ca-certificates bash-completion \
@@ -16,19 +37,6 @@ RUN apt-get install -y \
     ruby doxygen libxml2-utils less openjdk-8-jre xsltproc asciidoctor \
     nodejs node-typescript wget \
     apt-transport-https dirmngr gnupg ca-certificates apt-utils
-
-RUN git clone https://gitlab.com/gitlab-org/security-products/protocol-fuzzer-ce
-
-# Pin to a known version
-RUN cd protocol-fuzzer-ce && \
-    git checkout 5697f699dc43593d69c44b8521a50976dfff266e
-
-# Get specific mono packages
-WORKDIR /protocol-fuzzer-ce/paket/.paket
-RUN wget https://github.com/fsprojects/Paket/releases/download/5.257.0/paket.bootstrapper.exe
-RUN wget https://github.com/fsprojects/Paket/releases/download/5.257.0/paket.targets
-RUN wget https://github.com/fsprojects/Paket/releases/download/5.257.0/paket.exe
-RUN wget https://github.com/fsprojects/Paket/releases/download/5.257.0/Paket.Restore.targets
 
 WORKDIR /protocol-fuzzer-ce
 
